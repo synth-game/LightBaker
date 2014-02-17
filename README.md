@@ -1,0 +1,1 @@
+Synth's Light Baker - program for light pre-computing
