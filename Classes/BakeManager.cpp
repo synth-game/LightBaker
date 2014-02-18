@@ -6,6 +6,7 @@
  */
 
 #include "BakeManager.h"
+#include "SHA_light_baking.h"
 
 BakeManager::BakeManager() 
 	: Layer() 
@@ -40,6 +41,15 @@ bool BakeManager::init() {
 	// load the bitmask
 	_pBitmask = Sprite::create("levels/test/bitmask.png");
 	Layer::addChild(_pBitmask);
+
+	// attach custom shader to the bitmask
+	GLProgram* pProgram = new GLProgram();
+	pProgram->initWithVertexShaderByteArray(spotLighting_vert, spotLighting_frag);
+	pProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
+	pProgram->link();
+	pProgram->updateUniforms();
+	_pBitmask->setShaderProgram(pProgram);
+
 
 	//create the render texture
 	_pRenderTex = new RenderTexture();
