@@ -38,16 +38,16 @@ bool BakeManager::init() {
 	scheduleUpdate();
 
 	// load the bitmask
-	_pBitmask = new Image();
-	_pBitmask->initWithImageFile("levels/test/bitmask.png");
+	_pBitmask = Sprite::create("levels/test/bitmask.png");
+	Layer::addChild(_pBitmask);
 
 	//create the render texture
 	_pRenderTex = new RenderTexture();
-	_pRenderTex->initWithWidthAndHeight(10, 10, Texture2D::PixelFormat::RGBA8888);
+	_pRenderTex->initWithWidthAndHeight(_pBitmask->getContentSize().width, _pBitmask->getContentSize().height, _pBitmask->getTexture()->getPixelFormat());
 
 	return bRet;
 }
 
 void BakeManager::update(float fDt) {
-	CCLOG("Update : %fms par frame", fDt);
+
 }

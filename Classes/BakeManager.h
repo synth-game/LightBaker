@@ -27,7 +27,7 @@ protected:
 	BakeManager();
 
 	RenderTexture* _pRenderTex;
-	Image* _pBitmask;
+	Sprite* _pBitmask;
 };
 
 #endif //__BAKE_MANAGER_H__
