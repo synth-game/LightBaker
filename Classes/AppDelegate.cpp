@@ -1,4 +1,5 @@
 #include "AppDelegate.h"
+#include "BakeManager.h"
 
 USING_NS_CC;
 
@@ -23,6 +24,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0 / 60);
 
+	Scene* pMainScene = Scene::create();
+	BakeManager* pBakeManager = BakeManager::create();
+	pMainScene->addChild(pBakeManager);
+
+	director->runWithScene(pMainScene);
     
 
     return true;
