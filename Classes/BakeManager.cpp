@@ -8,7 +8,9 @@
 #include "BakeManager.h"
 
 BakeManager::BakeManager() 
-	: Layer() {
+	: Layer() 
+	, _pRenderTex(nullptr)
+	, _pBitmask(nullptr) {
 
 }
 
@@ -34,6 +36,14 @@ bool BakeManager::init() {
 
 	// activate update function
 	scheduleUpdate();
+
+	// load the bitmask
+	_pBitmask = new Image();
+	_pBitmask->initWithImageFile("levels/test/bitmask.png");
+
+	//create the render texture
+	_pRenderTex = new RenderTexture();
+	_pRenderTex->initWithWidthAndHeight(10, 10, Texture2D::PixelFormat::RGBA8888);
 
 	return bRet;
 }

@@ -25,6 +25,9 @@ public:
 protected:
 	/*! \brief Constructor */
 	BakeManager();
+
+	RenderTexture* _pRenderTex;
+	Image* _pBitmask;
 };
 
 #endif //__BAKE_MANAGER_H__
