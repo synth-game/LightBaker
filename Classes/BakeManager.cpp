@@ -50,4 +50,18 @@ bool BakeManager::init() {
 
 void BakeManager::update(float fDt) {
 
+	// lights rendering
+	_pRenderTex->clear(0.f, 0.f, 0.f, 0.f);
+	_pRenderTex->begin();
+
+	//draw light
+	_pBitmask->draw();
+
+	_pRenderTex->end();
+
+	// save the light texture in PNG
+	_pRenderTex->saveToFile("levels/test/PREC_light_01.png");
+
+	// exit the program
+	Director::getInstance()->end();
 }
