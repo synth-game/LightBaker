@@ -134,12 +134,14 @@ xcopy /Y /Q "$(ProjectDir)..\..\..\external\libwebsockets\win32\lib\*.*" "$(OutD
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
     <ClCompile Include="..\Classes\BakeManager.cpp" />
     <ClCompile Include="..\Classes\Light.cpp" />
+    <ClCompile Include="..\Classes\LightMap.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Classes\AppDelegate.h" />
     <ClInclude Include="..\Classes\BakeManager.h" />
     <ClInclude Include="..\Classes\Light.h" />
+    <ClInclude Include="..\Classes\LightMap.h" />
     <ClInclude Include="..\Classes\SHA_light_baking.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>

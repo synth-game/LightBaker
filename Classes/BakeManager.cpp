@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include "BakeManager.h"
+#include "LightMap.h"
 #include "SHA_light_baking.h"
 
 BakeManager::BakeManager() 
@@ -98,6 +99,20 @@ void BakeManager::update(float fDt) {
 
 	// exit the program
 	if(static_cast<unsigned int>(_iLightCursor) >= _lights.size()) {
+		buildAndSaveLightmap();
 		Director::getInstance()->end();
 	}
+}
+
+void BakeManager::buildAndSaveLightmap() {
+	LightMap* pLMap = new LightMap(_pBitmask->getContentSize().width, _pBitmask->getContentSize().height);
+
+	// build
+	for(unsigned int i=0; i<_lights.size(); ++i) {
+		pLMap->addLight(static_cast<int>(i));
+	}
+
+	// save
+
+	delete pLMap;
 }

@@ -23,6 +23,7 @@ public:
 
 	virtual bool init();
 	virtual void update(float fDt);
+	void buildAndSaveLightmap();
 
 protected:
 	/*! \brief Constructor */
