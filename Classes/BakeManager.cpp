@@ -40,6 +40,7 @@ bool BakeManager::init() {
 
 	// load the bitmask
 	_pBitmask = Sprite::create("levels/test/bitmask.png");
+	Size bitmaskSize = _pBitmask->getContentSize();
 	Layer::addChild(_pBitmask);
 
 	// attach custom shader to the bitmask
@@ -49,12 +50,14 @@ bool BakeManager::init() {
 	pProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_TEX_COORD, GLProgram::VERTEX_ATTRIB_TEX_COORDS);
 	pProgram->link();
 	pProgram->updateUniforms();
+	pProgram->use();
+	pProgram->setUniformLocationWith2f(pProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
 	_pBitmask->setShaderProgram(pProgram);
 
 
 	//create the render texture
 	_pRenderTex = new RenderTexture();
-	_pRenderTex->initWithWidthAndHeight(_pBitmask->getContentSize().width, _pBitmask->getContentSize().height, _pBitmask->getTexture()->getPixelFormat());
+	_pRenderTex->initWithWidthAndHeight(bitmaskSize.width, bitmaskSize.height, _pBitmask->getTexture()->getPixelFormat());
 
 	return bRet;
 }
