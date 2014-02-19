@@ -16,6 +16,7 @@ public:
 	~LightMap();
 
 	void addLight(int iLightId);
+	void saveToXml(const char* filePath);
 
 protected:
 	int	_iW;

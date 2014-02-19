@@ -47,3 +47,25 @@ void LightMap::addLight(int iLightId) {
 
 	delete pLightTexture;
 }
+
+void LightMap::saveToXml(const char* filePath) {
+	tinyxml2::XMLDocument doc;
+
+	tinyxml2::XMLElement* pRootElement = doc.NewElement("root");
+	doc.InsertEndChild(pRootElement);
+
+	// save all data
+	for(std::vector<std::vector<std::pair<int, bool>>>::iterator itPixel=_pixelGrid.begin(); itPixel!=_pixelGrid.end(); ++itPixel) {
+		tinyxml2::XMLElement* pPixelElement = doc.NewElement("pixel");
+		pRootElement->InsertEndChild(pPixelElement);
+
+		for(std::vector<std::pair<int, bool>>::iterator itLight=itPixel->begin(); itLight!=itPixel->end(); ++itLight) {
+			tinyxml2::XMLElement* pLightSampleElement = doc.NewElement("light_sample");
+			pLightSampleElement->SetAttribute("id", itLight->first);
+			pLightSampleElement->SetAttribute("occulted", itLight->second);
+			pPixelElement->InsertEndChild(pLightSampleElement);
+		}
+	}
+
+	doc.SaveFile(filePath);
+}

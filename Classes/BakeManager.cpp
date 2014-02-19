@@ -113,6 +113,7 @@ void BakeManager::buildAndSaveLightmap() {
 	}
 
 	// save
+	pLMap->saveToXml("levels/test/PREC_lightmap.xml");
 
 	delete pLMap;
 }
