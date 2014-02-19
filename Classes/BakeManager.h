@@ -8,7 +8,9 @@
 #ifndef __BAKE_MANAGER_H__
 #define __BAKE_MANAGER_H__
 
+#include <vector>
 #include "cocos2d.h"
+#include "Light.h"
 
 USING_NS_CC;
 
@@ -28,6 +30,8 @@ protected:
 
 	RenderTexture* _pRenderTex;
 	Sprite* _pBitmask;
+	int	_iLightCursor;
+	std::vector<Light*> _lights;
 };
 
 #endif //__BAKE_MANAGER_H__

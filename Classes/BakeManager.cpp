@@ -5,18 +5,23 @@
  * \date 18/02/2014
  */
 
+#include <sstream>
 #include "BakeManager.h"
 #include "SHA_light_baking.h"
 
 BakeManager::BakeManager() 
 	: Layer() 
 	, _pRenderTex(nullptr)
-	, _pBitmask(nullptr) {
+	, _pBitmask(nullptr) 
+	, _iLightCursor(0) {
 
 }
 
 BakeManager::~BakeManager() {
-
+	for(std::vector<Light*>::iterator itLight=_lights.begin(); itLight!=_lights.end(); ++itLight) {
+		delete *itLight;
+	}
+	_lights.clear();
 }
 
 BakeManager* BakeManager::create() {
@@ -59,6 +64,11 @@ bool BakeManager::init() {
 	_pRenderTex = new RenderTexture();
 	_pRenderTex->initWithWidthAndHeight(bitmaskSize.width, bitmaskSize.height, _pBitmask->getTexture()->getPixelFormat());
 
+	// initialize lights
+	_lights.push_back(new Light(Point(490.f, 260.f), Point(0.f, -1.f), 30.));
+	_lights.push_back(new Light(Point(540.f, 260.f), Point(0.f, -1.f), 30.));
+	_lights.push_back(new Light(Point(590.f, 260.f), Point(0.f, -1.f), 30.));
+
 	return bRet;
 }
 
@@ -69,13 +79,25 @@ void BakeManager::update(float fDt) {
 	_pRenderTex->begin();
 
 	//draw light
+	GLProgram* pBMProgram = _pBitmask->getShaderProgram();
+	Light* pCurrentLight = _lights[_iLightCursor];
+
+	pBMProgram->use();
+	pBMProgram->setUniformLocationWith2f(pBMProgram->getUniformLocationForName("SY_LightPos"), pCurrentLight->getPosition().x, pCurrentLight->getPosition().y);
+	pBMProgram->setUniformLocationWith2f(pBMProgram->getUniformLocationForName("SY_LightDir"), pCurrentLight->getDirection().x, pCurrentLight->getDirection().y);
+	pBMProgram->setUniformLocationWith1f(pBMProgram->getUniformLocationForName("SY_Aperture"), pCurrentLight->getAperture());
 	_pBitmask->draw();
 
 	_pRenderTex->end();
 
 	// save the light texture in PNG
-	_pRenderTex->saveToFile("levels/test/PREC_light_01.png");
+	std::stringstream filePath;
+	filePath << "levels/test/PREC_light_" << _iLightCursor <<".png";
+	_pRenderTex->newImage()->saveToFile(filePath.str().c_str(), false);
+	++_iLightCursor;
 
 	// exit the program
-	Director::getInstance()->end();
+	if(static_cast<unsigned int>(_iLightCursor) >= _lights.size()) {
+		Director::getInstance()->end();
+	}
 }
