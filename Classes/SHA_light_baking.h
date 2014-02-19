@@ -19,10 +19,14 @@ GL_STRINGIFY(
 	//begin
 
 	attribute vec4 a_position;
+	attribute vec2 a_texCoord;
+
+	varying vec2 v_texCoord;
 
 	void main()
 	{
 		gl_Position = CC_MVPMatrix * a_position;
+		v_texCoord = a_texCoord;
 	}
 
 	//end
@@ -32,9 +36,20 @@ const GLchar* spotLighting_frag =
 GL_STRINGIFY(
 	//begin
 
+	varying vec2 v_texCoord;
+
+	uniform sampler2D CC_Texture0;
+
 	void main()
 	{
-		gl_FragColor = vec4(0., 1., 0., 1.);
+		vec3 color = vec3(0.);
+
+		float isWall = texture2D(CC_Texture0, v_texCoord).r;
+		if(isWall > 0.9) {
+			color = vec3(0., 1., 0.);
+		}
+
+		gl_FragColor = vec4(color, 1.);
 	}
 
 	//end

@@ -46,6 +46,7 @@ bool BakeManager::init() {
 	GLProgram* pProgram = new GLProgram();
 	pProgram->initWithVertexShaderByteArray(spotLighting_vert, spotLighting_frag);
 	pProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
+	pProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_TEX_COORD, GLProgram::VERTEX_ATTRIB_TEX_COORDS);
 	pProgram->link();
 	pProgram->updateUniforms();
 	_pBitmask->setShaderProgram(pProgram);
