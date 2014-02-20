@@ -18,9 +18,6 @@ LightMap::LightMap(int iW, int iH)
 }
 
 LightMap::~LightMap() {
-	for(std::vector<std::vector<std::pair<int, bool>>>::iterator itPixel=_pixelGrid.begin(); itPixel!=_pixelGrid.end(); ++itPixel) {
-		itPixel->clear();
-	}
 	_pixelGrid.clear();
 }
 
@@ -55,15 +52,18 @@ void LightMap::saveToXml(const char* filePath) {
 	doc.InsertEndChild(pRootElement);
 
 	// save all data
-	for(std::vector<std::vector<std::pair<int, bool>>>::iterator itPixel=_pixelGrid.begin(); itPixel!=_pixelGrid.end(); ++itPixel) {
-		tinyxml2::XMLElement* pPixelElement = doc.NewElement("pixel");
-		pRootElement->InsertEndChild(pPixelElement);
+	for(unsigned int i=0; i<_pixelGrid.size(); ++i) {
+		if(_pixelGrid[i].size() > 0) {
+			tinyxml2::XMLElement* pPixelElement = doc.NewElement("pixel");
+			pPixelElement->SetAttribute("array_index", i);
+			pRootElement->InsertEndChild(pPixelElement);
 
-		for(std::vector<std::pair<int, bool>>::iterator itLight=itPixel->begin(); itLight!=itPixel->end(); ++itLight) {
-			tinyxml2::XMLElement* pLightSampleElement = doc.NewElement("light_sample");
-			pLightSampleElement->SetAttribute("id", itLight->first);
-			pLightSampleElement->SetAttribute("occulted", itLight->second);
-			pPixelElement->InsertEndChild(pLightSampleElement);
+			for(std::vector<std::pair<int, bool>>::iterator itLight=_pixelGrid[i].begin(); itLight!=_pixelGrid[i].end(); ++itLight) {
+				tinyxml2::XMLElement* pLightSampleElement = doc.NewElement("light_sample");
+				pLightSampleElement->SetAttribute("id", itLight->first);
+				pLightSampleElement->SetAttribute("occulted", itLight->second);
+				pPixelElement->InsertEndChild(pLightSampleElement);
+			}
 		}
 	}
 
