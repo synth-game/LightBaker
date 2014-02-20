@@ -11,10 +11,11 @@
 
 USING_NS_CC;
 
-LightMap::LightMap(int iW, int iH)
+LightMap::LightMap(int iW, int iH, int iCoef)
 	: _iW(iW)
-	, _iH(iH) {
-		_pixelGrid.resize(_iW*_iH);
+	, _iH(iH)
+	, _iResolutionCoef(iCoef) {
+		_pixelGrid.resize((_iW/_iResolutionCoef)*(_iH/_iResolutionCoef));
 }
 
 LightMap::~LightMap() {
@@ -28,8 +29,8 @@ void LightMap::addLight(int iLightId) {
 	Image* pLightTexture = new Image();
 	pLightTexture->initWithImageFile(texPath.str().c_str());
 
-	for(int j=0; j<_iH; ++j) {
-		for(int i=0; i<_iW; ++i) {
+	for(int j=0; j<_iH; j+=_iResolutionCoef) {
+		for(int i=0; i<_iW; i+=_iResolutionCoef) {
 			int index = i + j*_iW;
 			if(pLightTexture->getData()[4*index] == 255) {
 				bool bOcculted = false;
@@ -37,7 +38,7 @@ void LightMap::addLight(int iLightId) {
 					bOcculted = true;
 				}
 
-				_pixelGrid[index].push_back(std::make_pair(iLightId, bOcculted));
+				_pixelGrid[i/_iResolutionCoef + (j/_iResolutionCoef)*(_iW/_iResolutionCoef)].push_back(std::make_pair(iLightId, bOcculted));
 			}
 		}
 	}
@@ -46,26 +47,30 @@ void LightMap::addLight(int iLightId) {
 }
 
 void LightMap::saveToXml(const char* filePath) {
-	tinyxml2::XMLDocument doc;
+	tinyxml2::XMLDocument* pDoc = new tinyxml2::XMLDocument();
 
-	tinyxml2::XMLElement* pRootElement = doc.NewElement("root");
-	doc.InsertEndChild(pRootElement);
+	tinyxml2::XMLElement* pRootElement = pDoc->NewElement("root");
+	pRootElement->SetAttribute("resolution_coef", _iResolutionCoef);
+	pDoc->InsertEndChild(pRootElement);
 
 	// save all data
 	for(unsigned int i=0; i<_pixelGrid.size(); ++i) {
 		if(_pixelGrid[i].size() > 0) {
-			tinyxml2::XMLElement* pPixelElement = doc.NewElement("pixel");
+			tinyxml2::XMLElement* pPixelElement = pDoc->NewElement("pixel");
 			pPixelElement->SetAttribute("array_index", i);
 			pRootElement->InsertEndChild(pPixelElement);
 
 			for(std::vector<std::pair<int, bool>>::iterator itLight=_pixelGrid[i].begin(); itLight!=_pixelGrid[i].end(); ++itLight) {
-				tinyxml2::XMLElement* pLightSampleElement = doc.NewElement("light_sample");
+				tinyxml2::XMLElement* pLightSampleElement = pDoc->NewElement("light_sample");
 				pLightSampleElement->SetAttribute("id", itLight->first);
 				pLightSampleElement->SetAttribute("occulted", itLight->second);
 				pPixelElement->InsertEndChild(pLightSampleElement);
 			}
 		}
 	}
+	
+	pDoc->SaveFile(filePath);
+	CCLOG("LighMap save finished");
 
-	doc.SaveFile(filePath);
+	delete pDoc;
 }
