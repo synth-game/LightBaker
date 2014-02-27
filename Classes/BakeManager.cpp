@@ -46,7 +46,9 @@ bool BakeManager::init() {
 
 	// load the bitmask
 	_pBitmask = Sprite::create("levels/test/bitmask.png");
-	Size bitmaskSize = _pBitmask->getContentSize();
+	_pBitmask->setAnchorPoint(Point::ZERO);
+	_pBitmask->setScale(1.f/4.f);
+	Size bitmaskSize = _pBitmask->getContentSize()/4;
 	Layer::addChild(_pBitmask);
 
 	// attach custom shader to the bitmask
@@ -64,6 +66,7 @@ bool BakeManager::init() {
 	//create the render texture
 	_pRenderTex = new RenderTexture();
 	_pRenderTex->initWithWidthAndHeight(bitmaskSize.width, bitmaskSize.height, _pBitmask->getTexture()->getPixelFormat());
+	_pRenderTex->setAnchorPoint(Point::ZERO);
 
 	// initialize lights
 	_lights.push_back(new Light(Point(490.f, 260.f), Point(0.f, -1.f), 30.));
@@ -84,10 +87,10 @@ void BakeManager::update(float fDt) {
 	Light* pCurrentLight = _lights[_iLightCursor];
 
 	pBMProgram->use();
-	pBMProgram->setUniformLocationWith2f(pBMProgram->getUniformLocationForName("SY_LightPos"), pCurrentLight->getPosition().x, pCurrentLight->getPosition().y);
+	pBMProgram->setUniformLocationWith2f(pBMProgram->getUniformLocationForName("SY_LightPos"), pCurrentLight->getPosition().x/4.f, pCurrentLight->getPosition().y/4.f);
 	pBMProgram->setUniformLocationWith2f(pBMProgram->getUniformLocationForName("SY_LightDir"), pCurrentLight->getDirection().x, pCurrentLight->getDirection().y);
 	pBMProgram->setUniformLocationWith1f(pBMProgram->getUniformLocationForName("SY_Aperture"), pCurrentLight->getAperture());
-	_pBitmask->draw();
+	_pBitmask->visit();
 
 	_pRenderTex->end();
 
@@ -99,7 +102,7 @@ void BakeManager::update(float fDt) {
 
 	// exit the program
 	if(static_cast<unsigned int>(_iLightCursor) >= _lights.size()) {
-		buildAndSaveLightmap();
+		//buildAndSaveLightmap();
 		Director::getInstance()->end();
 	}
 }
