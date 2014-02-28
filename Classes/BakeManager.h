@@ -31,6 +31,9 @@ protected:
 
 	RenderTexture* _pRenderTex;
 	Sprite* _pBitmask;
+	Sprite* _pLight;
+	GLProgram* _pLightBakingProgram;
+	GLProgram* _pBlurProgram;
 	int	_iLightCursor;
 	std::vector<Light*> _lights;
 };

@@ -9,11 +9,15 @@
 #include "BakeManager.h"
 #include "LightMap.h"
 #include "SHA_light_baking.h"
+#include "SHA_blur.h"
 
 BakeManager::BakeManager() 
 	: Layer() 
 	, _pRenderTex(nullptr)
-	, _pBitmask(nullptr) 
+	, _pBitmask(nullptr)
+	, _pLight(nullptr)
+	, _pLightBakingProgram(nullptr)
+	, _pBlurProgram(nullptr)
 	, _iLightCursor(0) {
 
 }
@@ -51,16 +55,32 @@ bool BakeManager::init() {
 	Size bitmaskSize = _pBitmask->getContentSize()/4;
 	Layer::addChild(_pBitmask);
 
+	_pLight = Sprite::create("levels/test/bitmask.png");
+	_pLight->setAnchorPoint(Point::ZERO);
+	_pLight->setScale(1.f/4.f);
+	Layer::addChild(_pLight);
+
 	// attach custom shader to the bitmask
-	GLProgram* pProgram = new GLProgram();
-	pProgram->initWithVertexShaderByteArray(spotLighting_vert, spotLighting_frag);
-	pProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
-	pProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_TEX_COORD, GLProgram::VERTEX_ATTRIB_TEX_COORDS);
-	pProgram->link();
-	pProgram->updateUniforms();
-	pProgram->use();
-	pProgram->setUniformLocationWith2f(pProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
-	_pBitmask->setShaderProgram(pProgram);
+	_pLightBakingProgram = new GLProgram();
+	_pLightBakingProgram->initWithVertexShaderByteArray(spotLighting_vert, spotLighting_frag);
+	_pLightBakingProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
+	_pLightBakingProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_TEX_COORD, GLProgram::VERTEX_ATTRIB_TEX_COORDS);
+	_pLightBakingProgram->link();
+	_pLightBakingProgram->updateUniforms();
+	_pLightBakingProgram->use();
+	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
+	_pBitmask->setShaderProgram(_pLightBakingProgram);
+
+	// blur shader
+	_pBlurProgram = new GLProgram();
+	_pBlurProgram->initWithVertexShaderByteArray(blur_vert, blur_frag);
+	_pBlurProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
+	_pBlurProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_TEX_COORD, GLProgram::VERTEX_ATTRIB_TEX_COORDS);
+	_pBlurProgram->link();
+	_pBlurProgram->updateUniforms();
+	_pBlurProgram->use();
+	_pBlurProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
+	_pLight->setShaderProgram(_pBlurProgram);
 
 
 	//create the render texture
@@ -78,19 +98,30 @@ bool BakeManager::init() {
 
 void BakeManager::update(float fDt) {
 
-	// lights rendering
+	// # FIRST PASS - light renderning
 	_pRenderTex->clear(0.f, 0.f, 0.f, 0.f);
 	_pRenderTex->begin();
 
 	//draw light
-	GLProgram* pBMProgram = _pBitmask->getShaderProgram();
 	Light* pCurrentLight = _lights[_iLightCursor];
 
-	pBMProgram->use();
-	pBMProgram->setUniformLocationWith2f(pBMProgram->getUniformLocationForName("SY_LightPos"), pCurrentLight->getPosition().x/4.f, pCurrentLight->getPosition().y/4.f);
-	pBMProgram->setUniformLocationWith2f(pBMProgram->getUniformLocationForName("SY_LightDir"), pCurrentLight->getDirection().x, pCurrentLight->getDirection().y);
-	pBMProgram->setUniformLocationWith1f(pBMProgram->getUniformLocationForName("SY_Aperture"), pCurrentLight->getAperture());
+	_pLightBakingProgram->use();
+	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightPos"), pCurrentLight->getPosition().x/4.f, pCurrentLight->getPosition().y/4.f);
+	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightDir"), pCurrentLight->getDirection().x, pCurrentLight->getDirection().y);
+	_pLightBakingProgram->setUniformLocationWith1f(_pLightBakingProgram->getUniformLocationForName("SY_Aperture"), pCurrentLight->getAperture());
 	_pBitmask->visit();
+
+	_pRenderTex->end();
+
+	// # SECOND PASS - blur
+	Texture2D* pLightTex = new Texture2D();
+	pLightTex->autorelease();
+	pLightTex->initWithImage(_pRenderTex->newImage());
+	_pLight->setTexture(pLightTex);
+	_pRenderTex->clear(0.f, 0.f, 0.f, 0.f);
+	_pRenderTex->begin();
+
+	_pLight->visit();
 
 	_pRenderTex->end();
 

@@ -142,6 +142,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\..\external\libwebsockets\win32\lib\*.*" "$(OutD
     <ClInclude Include="..\Classes\BakeManager.h" />
     <ClInclude Include="..\Classes\Light.h" />
     <ClInclude Include="..\Classes\LightMap.h" />
+    <ClInclude Include="..\Classes\SHA_blur.h" />
     <ClInclude Include="..\Classes\SHA_light_baking.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
