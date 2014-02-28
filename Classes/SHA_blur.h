@@ -44,7 +44,14 @@ GL_STRINGIFY(
 	void main() {
 		vec2 pixelSize = vec2(1./SY_TexSize.x, 1./SY_TexSize.y);
 		
-		vec3 color = texture2D(CC_Texture0, v_texCoord).bgr;
+		int range = 2;
+		vec3 color = vec3(0.f);
+		for(float fX = v_texCoord.x-(range*pixelSize.x); fX <v_texCoord.x+((range+1)*pixelSize.x); fX+=pixelSize.x) {
+			for(float fY = v_texCoord.y-(range*pixelSize.y); fY <v_texCoord.y+((range+1)*pixelSize.y); fY+=pixelSize.y) {
+				color += texture2D(CC_Texture0, vec2(fX, fY)).rgb;
+			}
+		}
+		color /= 9.;
 
 		gl_FragColor = vec4(color, 1.);
 	}

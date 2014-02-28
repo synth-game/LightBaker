@@ -79,7 +79,7 @@ bool BakeManager::init() {
 	_pBlurProgram->link();
 	_pBlurProgram->updateUniforms();
 	_pBlurProgram->use();
-	_pBlurProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
+	_pBlurProgram->setUniformLocationWith2f(_pBlurProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
 	_pLight->setShaderProgram(_pBlurProgram);
 
 
