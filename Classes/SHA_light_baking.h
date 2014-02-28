@@ -68,7 +68,7 @@ GL_STRINGIFY(
 				}
 			}
 		
-			if(isOcculted == true) {
+			if(isOcculted == false) {
 				retCol.g = 1.;
 			}
 		}
