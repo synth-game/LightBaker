@@ -11,6 +11,8 @@
 #include "SHA_light_baking.h"
 #include "SHA_blur.h"
 
+#define RES_COEF 4
+
 BakeManager::BakeManager() 
 	: Layer() 
 	, _pRenderTex(nullptr)
@@ -51,13 +53,13 @@ bool BakeManager::init() {
 	// load the bitmask
 	_pBitmask = Sprite::create("levels/test/bitmask.png");
 	_pBitmask->setAnchorPoint(Point::ZERO);
-	_pBitmask->setScale(1.f/4.f);
-	Size bitmaskSize = _pBitmask->getContentSize()/4;
+	_pBitmask->setScale(1.f/RES_COEF);
+	Size bitmaskSize = _pBitmask->getContentSize()/RES_COEF;
 	Layer::addChild(_pBitmask);
 
 	_pLight = Sprite::create("levels/test/bitmask.png");
 	_pLight->setAnchorPoint(Point::ZERO);
-	_pLight->setScale(1.f/4.f);
+	_pLight->setScale(1.f/RES_COEF);
 	Layer::addChild(_pLight);
 
 	// attach custom shader to the bitmask
@@ -106,7 +108,7 @@ void BakeManager::update(float fDt) {
 	Light* pCurrentLight = _lights[_iLightCursor];
 
 	_pLightBakingProgram->use();
-	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightPos"), pCurrentLight->getPosition().x/4.f, pCurrentLight->getPosition().y/4.f);
+	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightPos"), pCurrentLight->getPosition().x/RES_COEF, pCurrentLight->getPosition().y/RES_COEF);
 	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightDir"), pCurrentLight->getDirection().x, pCurrentLight->getDirection().y);
 	_pLightBakingProgram->setUniformLocationWith1f(_pLightBakingProgram->getUniformLocationForName("SY_Aperture"), pCurrentLight->getAperture());
 	_pBitmask->visit();
@@ -133,13 +135,13 @@ void BakeManager::update(float fDt) {
 
 	// exit the program
 	if(static_cast<unsigned int>(_iLightCursor) >= _lights.size()) {
-		//buildAndSaveLightmap();
+		buildAndSaveLightmap();
 		Director::getInstance()->end();
 	}
 }
 
 void BakeManager::buildAndSaveLightmap() {
-	LightMap* pLMap = new LightMap(_pBitmask->getContentSize().width, _pBitmask->getContentSize().height, 4);
+	LightMap* pLMap = new LightMap(_pBitmask->getContentSize().width/RES_COEF, _pBitmask->getContentSize().height/RES_COEF, 1);
 
 	// build
 	for(unsigned int i=0; i<_lights.size(); ++i) {
