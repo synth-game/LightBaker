@@ -91,9 +91,9 @@ bool BakeManager::init() {
 	_pRenderTex->setAnchorPoint(Point::ZERO);
 
 	// initialize lights
-	_lights.push_back(new Light(Point(490.f, 260.f), Point(0.f, -1.f), 30.));
-	_lights.push_back(new Light(Point(540.f, 260.f), Point(0.f, -1.f), 30.));
-	_lights.push_back(new Light(Point(590.f, 260.f), Point(0.f, -1.f), 30.));
+	_lights.push_back(new Light(Point(390.f, 460.f), Point(0.f, -1.f), 30.));
+	_lights.push_back(new Light(Point(590.f, 460.f), Point(0.f, -1.f), 30.));
+	_lights.push_back(new Light(Point(790.f, 460.f), Point(0.f, -1.f), 30.));
 
 	return bRet;
 }
