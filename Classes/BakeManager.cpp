@@ -91,9 +91,9 @@ bool BakeManager::init() {
 	_pRenderTex->setAnchorPoint(Point::ZERO);
 
 	// initialize lights
-	_lights.push_back(new Light(Point(390.f, 460.f), Point(0.f, -1.f), 30.));
-	_lights.push_back(new Light(Point(590.f, 460.f), Point(0.f, -1.f), 30.));
-	_lights.push_back(new Light(Point(790.f, 460.f), Point(0.f, -1.f), 30.));
+	_lights.push_back(new Light(Point(390.f, 260.f), Point(0.f, -1.f), 15.));
+	_lights.push_back(new Light(Point(100.f, 580.f), Point(-1.f, 0.f), 15.));
+	_lights.push_back(new Light(Point(590.f, 260.f), Point(0.f, -1.f), 15.));
 
 	return bRet;
 }
@@ -135,7 +135,7 @@ void BakeManager::update(float fDt) {
 
 	// exit the program
 	if(static_cast<unsigned int>(_iLightCursor) >= _lights.size()) {
-		buildAndSaveLightmap();
+		//buildAndSaveLightmap();
 		Director::getInstance()->end();
 	}
 }
