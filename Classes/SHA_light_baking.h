@@ -109,7 +109,7 @@ GL_STRINGIFY(
 		vec3 retCol = vec3(0.);
 		if(cos_theta > cos_phi) {
 			retCol.r = 1.;
-			retCol.b = 0.3 + 0.7*cnoise(vec2(80.*(cos_theta-(SY_LightPos.x+SY_LightPos.y)/2.)));
+			retCol.b = 0.2*cnoise(vec2(100*cos_theta - (SY_LightPos.x+SY_LightPos.y)/10.));
 
 			// occlusion computing
 			vec2 samplePos = position;
