@@ -135,7 +135,7 @@ void BakeManager::update(float fDt) {
 
 	// exit the program
 	if(static_cast<unsigned int>(_iLightCursor) >= _lights.size()) {
-		buildAndSaveLightmap();
+		//buildAndSaveLightmap();
 		Director::getInstance()->end();
 	}
 }
