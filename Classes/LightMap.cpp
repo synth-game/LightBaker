@@ -11,11 +11,12 @@
 
 USING_NS_CC;
 
-LightMap::LightMap(int iW, int iH, int iCoef)
-	: _iW(iW)
-	, _iH(iH)
+LightMap::LightMap(int iW, int iH, int iTexCoef, int iCoef)
+	: _iW(iW/iCoef)
+	, _iH(iH/iCoef)
+	, _iTextureResCoef(iTexCoef)
 	, _iResolutionCoef(iCoef) {
-		_pixelGrid.resize((_iW/_iResolutionCoef)*(_iH/_iResolutionCoef));
+		_pixelGrid.resize(_iW*_iH);
 }
 
 LightMap::~LightMap() {
@@ -29,16 +30,16 @@ void LightMap::addLight(int iLightId) {
 	Image* pLightTexture = new Image();
 	pLightTexture->initWithImageFile(texPath.str().c_str());
 
-	for(int j=0; j<_iH; j+=_iResolutionCoef) {
-		for(int i=0; i<_iW; i+=_iResolutionCoef) {
-			int index = i + j*_iW;
+	for(int j=0; j<_iH; ++j) {
+		for(int i=0; i<_iW; ++i) {
+			int index = i*_iTextureResCoef + j*_iTextureResCoef*_iW*_iTextureResCoef;
 			if(pLightTexture->getData()[4*index] == 255) {
 				bool bOcculted = false;
 				if(pLightTexture->getData()[4*index+1] == 255) {
 					bOcculted = true;
 				}
 
-				_pixelGrid[i/_iResolutionCoef + (j/_iResolutionCoef)*(_iW/_iResolutionCoef)].push_back(std::make_pair(iLightId, bOcculted));
+				_pixelGrid[i + j*_iW].push_back(std::make_pair(iLightId, bOcculted));
 			}
 		}
 	}
@@ -50,6 +51,8 @@ void LightMap::saveToXml(const char* filePath) {
 	tinyxml2::XMLDocument* pDoc = new tinyxml2::XMLDocument();
 
 	tinyxml2::XMLElement* pRootElement = pDoc->NewElement("root");
+	pRootElement->SetAttribute("width", _iW);
+	pRootElement->SetAttribute("height", _iH);
 	pRootElement->SetAttribute("resolution_coef", _iResolutionCoef);
 	pDoc->InsertEndChild(pRootElement);
 

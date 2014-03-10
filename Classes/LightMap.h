@@ -12,7 +12,7 @@
 
 class LightMap {
 public:
-	LightMap(int iW, int iH, int iCoef);
+	LightMap(int iW, int iH, int iTexCoef, int iCoef);
 	~LightMap();
 
 	void addLight(int iLightId);
@@ -21,6 +21,7 @@ public:
 protected:
 	int	_iW;
 	int _iH;
+	int _iTextureResCoef;
 	int _iResolutionCoef;
 	std::vector<std::vector<std::pair<int, bool>>> _pixelGrid;
 };
