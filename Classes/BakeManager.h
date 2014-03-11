@@ -9,6 +9,7 @@
 #define __BAKE_MANAGER_H__
 
 #include <vector>
+#include <string>
 #include "cocos2d.h"
 #include "Light.h"
 
@@ -22,6 +23,7 @@ public:
 	static BakeManager* create();
 
 	virtual bool init();
+	void loadLevel(int iLevelId);
 	virtual void update(float fDt);
 	void buildAndSaveLightmap();
 
@@ -34,8 +36,12 @@ protected:
 	Sprite* _pLight;
 	GLProgram* _pLightBakingProgram;
 	GLProgram* _pBlurProgram;
+
 	int	_iLightCursor;
 	std::vector<Light*> _lights;
+
+	int _iLevelCursor;
+	std::vector<std::string> _levelNames;
 };
 
 #endif //__BAKE_MANAGER_H__

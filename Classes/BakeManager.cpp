@@ -20,7 +20,8 @@ BakeManager::BakeManager()
 	, _pLight(nullptr)
 	, _pLightBakingProgram(nullptr)
 	, _pBlurProgram(nullptr)
-	, _iLightCursor(0) {
+	, _iLightCursor(0)
+	, _iLevelCursor(0) {
 
 }
 
@@ -29,6 +30,7 @@ BakeManager::~BakeManager() {
 		delete *itLight;
 	}
 	_lights.clear();
+	_levelNames.clear();
 }
 
 BakeManager* BakeManager::create() {
@@ -50,6 +52,34 @@ bool BakeManager::init() {
 	// activate update function
 	scheduleUpdate();
 
+	// load level name
+	tinyxml2::XMLDocument levelsDoc;
+	int xmlerror = levelsDoc.LoadFile("xml/levels.xml");
+	CCASSERT(xmlerror==0, "ERROR LOADING LEVELS XML FILE");
+	tinyxml2::XMLElement* pGameElt = levelsDoc.FirstChildElement("game");
+	tinyxml2::XMLElement* pLevelElt = pGameElt->FirstChildElement("level");
+	while(pLevelElt != nullptr) {
+		_levelNames.push_back(pLevelElt->Attribute("name"));
+
+		pLevelElt = pLevelElt->NextSiblingElement("level");
+	}
+
+	// create shaders
+	_pLightBakingProgram = new GLProgram();
+	_pLightBakingProgram->initWithVertexShaderByteArray(spotLighting_vert, spotLighting_frag);
+	_pLightBakingProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
+	_pLightBakingProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_TEX_COORD, GLProgram::VERTEX_ATTRIB_TEX_COORDS);
+	_pLightBakingProgram->link();
+	_pLightBakingProgram->updateUniforms();
+
+	_pBlurProgram = new GLProgram();
+	_pBlurProgram->initWithVertexShaderByteArray(blur_vert, blur_frag);
+	_pBlurProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
+	_pBlurProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_TEX_COORD, GLProgram::VERTEX_ATTRIB_TEX_COORDS);
+	_pBlurProgram->link();
+	_pBlurProgram->updateUniforms();
+
+	//TO MOVER
 	// load the bitmask
 	_pBitmask = Sprite::create("levels/test/bitmask.png");
 	_pBitmask->setAnchorPoint(Point::ZERO);
@@ -63,24 +93,13 @@ bool BakeManager::init() {
 	Layer::addChild(_pLight);
 
 	// attach custom shader to the bitmask
-	_pLightBakingProgram = new GLProgram();
-	_pLightBakingProgram->initWithVertexShaderByteArray(spotLighting_vert, spotLighting_frag);
-	_pLightBakingProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
-	_pLightBakingProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_TEX_COORD, GLProgram::VERTEX_ATTRIB_TEX_COORDS);
-	_pLightBakingProgram->link();
-	_pLightBakingProgram->updateUniforms();
+	
 	_pLightBakingProgram->use();
 	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
 	_pBitmask->setShaderProgram(_pLightBakingProgram);
 
 	// blur shader
-	_pBlurProgram = new GLProgram();
-	_pBlurProgram->initWithVertexShaderByteArray(blur_vert, blur_frag);
-	_pBlurProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
-	_pBlurProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_TEX_COORD, GLProgram::VERTEX_ATTRIB_TEX_COORDS);
-	_pBlurProgram->link();
-	_pBlurProgram->updateUniforms();
-	_pBlurProgram->use();
+	
 	_pBlurProgram->setUniformLocationWith2f(_pBlurProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
 	_pLight->setShaderProgram(_pBlurProgram);
 
@@ -96,6 +115,10 @@ bool BakeManager::init() {
 	_lights.push_back(new Light(Point(690.f, 260.f), Point(0.f, -1.f), 15.));
 
 	return bRet;
+}
+
+void BakeManager::loadLevel(int iLevelId) {
+	
 }
 
 void BakeManager::update(float fDt) {
