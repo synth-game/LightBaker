@@ -78,47 +78,62 @@ bool BakeManager::init() {
 	_pBlurProgram->addAttribute(GLProgram::ATTRIBUTE_NAME_TEX_COORD, GLProgram::VERTEX_ATTRIB_TEX_COORDS);
 	_pBlurProgram->link();
 	_pBlurProgram->updateUniforms();
-
-	//TO MOVER
-	// load the bitmask
-	_pBitmask = Sprite::create("levels/test/bitmask.png");
-	_pBitmask->setAnchorPoint(Point::ZERO);
-	_pBitmask->setScale(1.f/RES_COEF);
-	Size bitmaskSize = _pBitmask->getContentSize()/RES_COEF;
-	Layer::addChild(_pBitmask);
-
-	_pLight = Sprite::create("levels/test/bitmask.png");
-	_pLight->setAnchorPoint(Point::ZERO);
-	_pLight->setScale(1.f/RES_COEF);
-	Layer::addChild(_pLight);
-
-	// attach custom shader to the bitmask
 	
-	_pLightBakingProgram->use();
-	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
-	_pBitmask->setShaderProgram(_pLightBakingProgram);
-
-	// blur shader
-	
-	_pBlurProgram->setUniformLocationWith2f(_pBlurProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
-	_pLight->setShaderProgram(_pBlurProgram);
-
-
-	//create the render texture
-	_pRenderTex = new RenderTexture();
-	_pRenderTex->initWithWidthAndHeight(bitmaskSize.width, bitmaskSize.height, _pBitmask->getTexture()->getPixelFormat());
-	_pRenderTex->setAnchorPoint(Point::ZERO);
-
-	// initialize lights
-	_lights.push_back(new Light(Point(490.f, 260.f), Point(0.f, -1.f), 15.));
-	_lights.push_back(new Light(Point(590.f, 260.f), Point(0.f, -1.f), 15.));
-	_lights.push_back(new Light(Point(690.f, 260.f), Point(0.f, -1.f), 15.));
+	loadLevel(_iLevelCursor);
 
 	return bRet;
 }
 
 void BakeManager::loadLevel(int iLevelId) {
-	
+	if(iLevelId < _levelNames.size()) {
+		// load the bitmask
+		_pBitmask = Sprite::create(std::string("levels/"+_levelNames[iLevelId]+"/bitmask.png").c_str());
+		_pBitmask->setAnchorPoint(Point::ZERO);
+		_pBitmask->setScale(1.f/RES_COEF);
+		Size bitmaskSize = _pBitmask->getContentSize()/RES_COEF;
+		Layer::addChild(_pBitmask);
+
+		_pLight = Sprite::create(std::string("levels/"+_levelNames[iLevelId]+"/bitmask.png").c_str());
+		_pLight->setAnchorPoint(Point::ZERO);
+		_pLight->setScale(1.f/RES_COEF);
+		Layer::addChild(_pLight);
+
+		// attach custom shader to the bitmask
+		_pLightBakingProgram->use();
+		_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
+		_pBitmask->setShaderProgram(_pLightBakingProgram);
+
+		// blur shader
+		_pBlurProgram->setUniformLocationWith2f(_pBlurProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
+		_pLight->setShaderProgram(_pBlurProgram);
+
+		//create the render texture
+		_pRenderTex = new RenderTexture();
+		_pRenderTex->initWithWidthAndHeight(bitmaskSize.width, bitmaskSize.height, _pBitmask->getTexture()->getPixelFormat());
+		_pRenderTex->setAnchorPoint(Point::ZERO);
+
+		// initialize lights
+		_lights.push_back(new Light(Point(490.f, 260.f), Point(0.f, -1.f), 15.));
+		_lights.push_back(new Light(Point(590.f, 260.f), Point(0.f, -1.f), 15.));
+		_lights.push_back(new Light(Point(690.f, 260.f), Point(0.f, -1.f), 15.));
+	} else {
+		//quit the program
+		CCLOG("END OF PROCESS");
+		Director::getInstance()->end();
+	}
+}
+
+void BakeManager::clearLevel() {
+	Layer::removeChild(_pBitmask);
+	Layer::removeChild(_pLight);
+	delete _pRenderTex;
+
+	for(auto light : _lights) {
+		delete light;
+		light = nullptr;
+	}
+	_lights.clear();
+	_iLightCursor = 0;
 }
 
 void BakeManager::update(float fDt) {
@@ -152,14 +167,17 @@ void BakeManager::update(float fDt) {
 
 	// save the light texture in PNG
 	std::stringstream filePath;
-	filePath << "levels/test/PREC_light_" << _iLightCursor <<".png";
+	filePath << "levels/" << _levelNames[_iLevelCursor] << "/PREC_light_" << _iLightCursor <<".png";
 	_pRenderTex->newImage()->saveToFile(filePath.str().c_str(), false);
 	++_iLightCursor;
 
-	// exit the program
+	// finish current level
 	if(static_cast<unsigned int>(_iLightCursor) >= _lights.size()) {
-		buildAndSaveLightmap();
-		Director::getInstance()->end();
+		//buildAndSaveLightmap();
+
+		++_iLevelCursor;
+		clearLevel();
+		loadLevel(_iLevelCursor);
 	}
 }
 
@@ -172,7 +190,7 @@ void BakeManager::buildAndSaveLightmap() {
 	}
 
 	// save
-	pLMap->saveToXml("levels/test/PREC_lightmap.xml");
+	pLMap->saveToXml(std::string("levels/"+_levelNames[_iLevelCursor]+"/PREC_lightmap.xml").c_str());
 
 	delete pLMap;
 }

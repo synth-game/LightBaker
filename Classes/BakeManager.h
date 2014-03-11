@@ -23,13 +23,15 @@ public:
 	static BakeManager* create();
 
 	virtual bool init();
-	void loadLevel(int iLevelId);
 	virtual void update(float fDt);
 	void buildAndSaveLightmap();
 
 protected:
 	/*! \brief Constructor */
 	BakeManager();
+
+	void loadLevel(int iLevelId);
+	void clearLevel();
 
 	RenderTexture* _pRenderTex;
 	Sprite* _pBitmask;
