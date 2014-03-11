@@ -34,9 +34,9 @@ void LightMap::addLight(int iLightId) {
 		for(int i=0; i<_iW; ++i) {
 			int index = i*_iTextureResCoef + j*_iTextureResCoef*_iW*_iTextureResCoef;
 			if(pLightTexture->getData()[4*index] == 255) {
-				bool bOcculted = false;
+				bool bOcculted = true;
 				if(pLightTexture->getData()[4*index+1] == 255) {
-					bOcculted = true;
+					bOcculted = false;
 				}
 
 				_pixelGrid[i + j*_iW].push_back(std::make_pair(iLightId, bOcculted));
