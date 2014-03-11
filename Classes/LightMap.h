@@ -15,7 +15,7 @@ public:
 	LightMap(int iW, int iH, int iTexCoef, int iCoef);
 	~LightMap();
 
-	void addLight(int iLightId);
+	void addLight(int iLightId, std::string sFilePath);
 	void saveToXml(const char* filePath);
 
 protected:

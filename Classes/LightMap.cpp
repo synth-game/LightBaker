@@ -5,7 +5,6 @@
  * \date 19/02/2014
  */
 
-#include <sstream>
 #include "cocos2d.h"
 #include "LightMap.h"
 
@@ -23,12 +22,9 @@ LightMap::~LightMap() {
 	_pixelGrid.clear();
 }
 
-void LightMap::addLight(int iLightId) {
-	std::stringstream texPath;
-	texPath<<"levels/test/PREC_light_"<<iLightId<<".png";
-
+void LightMap::addLight(int iLightId, std::string sFilePath) {
 	Image* pLightTexture = new Image();
-	pLightTexture->initWithImageFile(texPath.str().c_str());
+	pLightTexture->initWithImageFile(sFilePath.c_str());
 
 	for(int j=0; j<_iH; ++j) {
 		for(int i=0; i<_iW; ++i) {

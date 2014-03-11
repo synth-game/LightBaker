@@ -5,6 +5,9 @@
  * \date 18/02/2014
  */
 
+#define _USE_MATH_DEFINES
+
+#include <cmath>
 #include <sstream>
 #include "BakeManager.h"
 #include "LightMap.h"
@@ -104,6 +107,7 @@ void BakeManager::loadLevel(int iLevelId) {
 		_pBitmask->setShaderProgram(_pLightBakingProgram);
 
 		// blur shader
+		_pBlurProgram->use();
 		_pBlurProgram->setUniformLocationWith2f(_pBlurProgram->getUniformLocationForName("SY_TexSize"), bitmaskSize.width, bitmaskSize.height);
 		_pLight->setShaderProgram(_pBlurProgram);
 
@@ -112,10 +116,38 @@ void BakeManager::loadLevel(int iLevelId) {
 		_pRenderTex->initWithWidthAndHeight(bitmaskSize.width, bitmaskSize.height, _pBitmask->getTexture()->getPixelFormat());
 		_pRenderTex->setAnchorPoint(Point::ZERO);
 
-		// initialize lights
-		_lights.push_back(new Light(Point(490.f, 260.f), Point(0.f, -1.f), 15.));
-		_lights.push_back(new Light(Point(590.f, 260.f), Point(0.f, -1.f), 15.));
-		_lights.push_back(new Light(Point(690.f, 260.f), Point(0.f, -1.f), 15.));
+		//initialize lights
+		tinyxml2::XMLDocument actorsDoc;
+		int xmlerror = actorsDoc.LoadFile(std::string("levels/"+_levelNames[iLevelId]+"/actors.xml").c_str());
+		CCASSERT(xmlerror==0, "ERROR LOADING ACTORS XML FILE");
+		tinyxml2::XMLElement* pActorElt = actorsDoc.FirstChildElement("actor");
+		while(pActorElt != nullptr) {
+			std::string sActorType(pActorElt->Attribute("type"));
+			if(sActorType == "LIGHT") {
+				tinyxml2::XMLElement* pComponentElt = pActorElt->FirstChildElement("component");
+				while(pComponentElt != nullptr) {
+					std::string sCompType(pComponentElt->Attribute("type"));
+					if(sCompType == "GEOMETRY") {
+						// add a new light
+						tinyxml2::XMLElement* pPositionElt = pComponentElt->FirstChildElement("position");
+						Point lightPos;
+						lightPos.x = pPositionElt->FloatAttribute("x");
+						lightPos.y = _pBitmask->getContentSize().height - pPositionElt->FloatAttribute("y");
+						float fRotate = atof(pComponentElt->FirstChildElement("rotate")->GetText()) - 90.f;
+						Point lightDir(cos(fRotate*M_PI/180.f), sin(fRotate*M_PI/180.f));
+						float fAperture = 15.f; // fake apreture
+
+						Light* pNewLight = new Light(lightPos, lightDir, fAperture);
+						_lights.push_back(pNewLight);
+					}
+
+					pComponentElt = pComponentElt->NextSiblingElement("component");
+				}
+			}
+
+			pActorElt = pActorElt->NextSiblingElement("actor");
+		}
+
 	} else {
 		//quit the program
 		CCLOG("END OF PROCESS");
@@ -173,7 +205,7 @@ void BakeManager::update(float fDt) {
 
 	// finish current level
 	if(static_cast<unsigned int>(_iLightCursor) >= _lights.size()) {
-		//buildAndSaveLightmap();
+		buildAndSaveLightmap();
 
 		++_iLevelCursor;
 		clearLevel();
@@ -186,7 +218,9 @@ void BakeManager::buildAndSaveLightmap() {
 
 	// build
 	for(unsigned int i=0; i<_lights.size(); ++i) {
-		pLMap->addLight(static_cast<int>(i));
+		std::stringstream filePath;
+		filePath << "levels/" << _levelNames[_iLevelCursor] << "/PREC_light_" << i <<".png";
+		pLMap->addLight(static_cast<int>(i), filePath.str());
 	}
 
 	// save
