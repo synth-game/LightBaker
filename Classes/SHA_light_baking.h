@@ -138,8 +138,9 @@ GL_STRINGIFY(
 		float fRayStep = (pixelSize.x + pixelSize.y) /2.;
 
 		vec2 realLightPos = vec2(pixelSize.x*SY_LightPos.x, pixelSize.y*SY_LightPos.y);
+		vec2 realLightDir = normalize(vec2(pixelSize.x*SY_LightDir.x, pixelSize.y*SY_LightDir.y));
 
-		vec3 color = computeSpotLight(v_texCoord, realLightPos, SY_LightDir, SY_Aperture, fRayStep);
+		vec3 color = computeSpotLight(v_texCoord, realLightPos, realLightDir, SY_Aperture, fRayStep);
 
 		gl_FragColor = vec4(color, 1.);
 	}
