@@ -134,8 +134,8 @@ void BakeManager::loadLevel(int iLevelId) {
 						lightPos.x = pPositionElt->FloatAttribute("x");
 						lightPos.y = _pBitmask->getContentSize().height - pPositionElt->FloatAttribute("y");
 						float fRotate = atof(pComponentElt->FirstChildElement("rotate")->GetText()) - 90.f;
-						Point lightDir(cos(fRotate*M_PI/180.f), sin(fRotate*M_PI/180.f));
-						float fAperture = 15.f; // fake apreture
+						Point lightDir(-cos(fRotate*M_PI/180.f), sin(fRotate*M_PI/180.f));
+						float fAperture = atof(pComponentElt->FirstChildElement("aperture")->GetText())/4.f;
 
 						Light* pNewLight = new Light(lightPos, lightDir, fAperture);
 						_lights.push_back(pNewLight);
