@@ -7,10 +7,11 @@
 
 #include "Light.h"
 
-Light::Light(Point pos, Point dir, float fAperture) 
+Light::Light(Point pos, Point dir, float fAperture, float fLength) 
 	: _position(pos)
 	, _direction(dir)
-	, _fAperture(fAperture) {
+	, _fAperture(fAperture)
+	, _fLength(fLength) {
 }
 
 Light::~Light() {
