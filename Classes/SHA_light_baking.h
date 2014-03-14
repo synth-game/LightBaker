@@ -43,6 +43,7 @@ GL_STRINGIFY(
 	uniform vec2 SY_LightPos;
 	uniform vec2 SY_LightDir;
 	uniform float SY_Aperture;
+	uniform float SY_Length;
 
 	vec4 mod289(vec4 x) {
 		return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -107,7 +108,7 @@ GL_STRINGIFY(
 		float cos_phi = cos(radians(phi));
 		
 		vec3 retCol = vec3(0.);
-		if(cos_theta > cos_phi) {
+		if(cos_theta > cos_phi && distance(lightPos, position) < SY_Length * fRayStep / 2.)  {
 			retCol.r = 1.;
 			retCol.b = 0.2*cnoise(vec2(100*cos_theta - (SY_LightPos.x+SY_LightPos.y)/10.));
 
