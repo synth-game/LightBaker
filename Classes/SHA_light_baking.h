@@ -108,7 +108,7 @@ GL_STRINGIFY(
 		float cos_phi = cos(radians(phi));
 		
 		vec3 retCol = vec3(0.);
-		if(cos_theta > cos_phi && distance(lightPos, position) < SY_Length * fRayStep / 2.)  {
+		if(cos_theta > cos_phi && distance(lightPos, position) < SY_Length * fRayStep)  {
 			retCol.r = 1.;
 			retCol.b = 0.2*cnoise(vec2(100*cos_theta - (SY_LightPos.x+SY_LightPos.y)/10.));
 

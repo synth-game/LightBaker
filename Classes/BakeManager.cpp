@@ -146,7 +146,7 @@ void BakeManager::loadLevel(int iLevelId) {
 				tinyxml2::XMLElement* pLightBakingElt = pActorElt->FirstChildElement("light_baking");
 				CCASSERT(pLightBakingElt != nullptr, "There is no light_baking tag");
 				fAperture = atof(pLightBakingElt->FirstChildElement("aperture")->GetText())/4.f;
-				fLength = atof(pLightBakingElt->FirstChildElement("length")->GetText());
+				fLength = atof(pLightBakingElt->FirstChildElement("length")->GetText())/RES_COEF;
 
 				Light* pNewLight = new Light(lightPos, lightDir, fAperture, fLength);
 				_lights.push_back(pNewLight);
