@@ -188,6 +188,7 @@ void BakeManager::update(float fDt) {
 	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightPos"), pCurrentLight->getPosition().x/RES_COEF, pCurrentLight->getPosition().y/RES_COEF);
 	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightDir"), pCurrentLight->getDirection().x, pCurrentLight->getDirection().y);
 	_pLightBakingProgram->setUniformLocationWith1f(_pLightBakingProgram->getUniformLocationForName("SY_Aperture"), pCurrentLight->getAperture());
+	_pLightBakingProgram->setUniformLocationWith1f(_pLightBakingProgram->getUniformLocationForName("SY_Length"), pCurrentLight->getLength());
 	_pBitmask->visit();
 
 	_pRenderTex->end();
