@@ -94,6 +94,10 @@ void BakeManager::loadLevel(int iLevelId) {
 		_pBitmask->setAnchorPoint(Point::ZERO);
 		_pBitmask->setScale(1.f/RES_COEF);
 		Size bitmaskSize = _pBitmask->getContentSize()/RES_COEF;
+		float fLevelRatio = bitmaskSize.height/bitmaskSize.width;
+		if(bitmaskSize.width < bitmaskSize.height) {
+			fLevelRatio = bitmaskSize.width/bitmaskSize.height;
+		}
 		Layer::addChild(_pBitmask);
 
 		_pLight = Sprite::create(std::string("levels/"+_levelNames[iLevelId]+"/bitmask.png").c_str());
@@ -145,7 +149,7 @@ void BakeManager::loadLevel(int iLevelId) {
 
 				tinyxml2::XMLElement* pLightBakingElt = pActorElt->FirstChildElement("light_baking");
 				CCASSERT(pLightBakingElt != nullptr, "There is no light_baking tag");
-				fAperture = atof(pLightBakingElt->FirstChildElement("aperture")->GetText())/4.f;
+				fAperture = atof(pLightBakingElt->FirstChildElement("aperture")->GetText())*fLevelRatio /2.f;
 				fLength = atof(pLightBakingElt->FirstChildElement("length")->GetText())/RES_COEF;
 
 				Light* pNewLight = new Light(lightPos, lightDir, fAperture, fLength);
