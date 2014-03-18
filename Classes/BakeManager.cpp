@@ -128,6 +128,7 @@ void BakeManager::loadLevel(int iLevelId) {
 		while(pActorElt != nullptr) {
 			std::string sActorType(pActorElt->Attribute("type"));
 			if(sActorType == "LIGHT") {
+				int lightId = pActorElt->IntAttribute("id");
 				tinyxml2::XMLElement* pComponentElt = pActorElt->FirstChildElement("component");
 				Point lightPos;
 				Point lightDir;
@@ -152,7 +153,7 @@ void BakeManager::loadLevel(int iLevelId) {
 				fAperture = atof(pLightBakingElt->FirstChildElement("aperture")->GetText())*fLevelRatio /2.f;
 				fLength = atof(pLightBakingElt->FirstChildElement("length")->GetText())/RES_COEF;
 
-				Light* pNewLight = new Light(lightPos, lightDir, fAperture, fLength);
+				Light* pNewLight = new Light(lightId, lightPos, lightDir, fAperture, fLength);
 				_lights.push_back(pNewLight);
 			}
 
@@ -232,7 +233,7 @@ void BakeManager::buildAndSaveLightmap() {
 	for(unsigned int i=0; i<_lights.size(); ++i) {
 		std::stringstream filePath;
 		filePath << "levels/" << _levelNames[_iLevelCursor] << "/PREC_light_" << i <<".png";
-		pLMap->addLight(static_cast<int>(i), filePath.str());
+		pLMap->addLight(static_cast<int>(_lights[i]->getId()), filePath.str());
 	}
 
 	// save

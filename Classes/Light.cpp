@@ -7,8 +7,9 @@
 
 #include "Light.h"
 
-Light::Light(Point pos, Point dir, float fAperture, float fLength) 
-	: _position(pos)
+Light::Light(int id, Point pos, Point dir, float fAperture, float fLength) 
+	: _id(id)
+	, _position(pos)
 	, _direction(dir)
 	, _fAperture(fAperture)
 	, _fLength(fLength) {
