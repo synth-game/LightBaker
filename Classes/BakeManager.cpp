@@ -226,7 +226,7 @@ void BakeManager::update(float fDt) {
 }
 
 void BakeManager::buildAndSaveLightmap() {
-	LightMap* pLMap = new LightMap(_pBitmask->getContentSize().width, _pBitmask->getContentSize().height, RES_COEF/RES_COEF, RES_COEF);
+	LightMap* pLMap = new LightMap(_pBitmask->getContentSize().width, _pBitmask->getContentSize().height, 4*RES_COEF/RES_COEF, 4*RES_COEF);
 
 	// build
 	for(unsigned int i=0; i<_lights.size(); ++i) {
