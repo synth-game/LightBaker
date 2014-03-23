@@ -186,37 +186,38 @@ void BakeManager::update(float fDt) {
 	_pRenderTex->begin();
 
 	//draw light
-	Light* pCurrentLight = _lights[_iLightCursor];
+	if (!_lights.empty()) {
+		Light* pCurrentLight = _lights[_iLightCursor];
 
-	_pLightBakingProgram->use();
-	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightPos"), pCurrentLight->getPosition().x/RES_COEF, pCurrentLight->getPosition().y/RES_COEF);
-	_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightDir"), pCurrentLight->getDirection().x, pCurrentLight->getDirection().y);
-	_pLightBakingProgram->setUniformLocationWith1f(_pLightBakingProgram->getUniformLocationForName("SY_Aperture"), pCurrentLight->getAperture());
-	_pLightBakingProgram->setUniformLocationWith1f(_pLightBakingProgram->getUniformLocationForName("SY_Length"), pCurrentLight->getLength());
-	_pBitmask->visit();
+		_pLightBakingProgram->use();
+		_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightPos"), pCurrentLight->getPosition().x/RES_COEF, pCurrentLight->getPosition().y/RES_COEF);
+		_pLightBakingProgram->setUniformLocationWith2f(_pLightBakingProgram->getUniformLocationForName("SY_LightDir"), pCurrentLight->getDirection().x, pCurrentLight->getDirection().y);
+		_pLightBakingProgram->setUniformLocationWith1f(_pLightBakingProgram->getUniformLocationForName("SY_Aperture"), pCurrentLight->getAperture());
+		_pLightBakingProgram->setUniformLocationWith1f(_pLightBakingProgram->getUniformLocationForName("SY_Length"), pCurrentLight->getLength());
+		_pBitmask->visit();
 
-	_pRenderTex->end();
+		_pRenderTex->end();
 
-	// # SECOND PASS - blur
-	Texture2D* pLightTex = new Texture2D();
-	pLightTex->autorelease();
-	pLightTex->initWithImage(_pRenderTex->newImage());
-	_pLight->setTexture(pLightTex);
-	_pRenderTex->clear(0.f, 0.f, 0.f, 0.f);
-	_pRenderTex->begin();
+		// # SECOND PASS - blur
+		Texture2D* pLightTex = new Texture2D();
+		pLightTex->autorelease();
+		pLightTex->initWithImage(_pRenderTex->newImage());
+		_pLight->setTexture(pLightTex);
+		_pRenderTex->clear(0.f, 0.f, 0.f, 0.f);
+		_pRenderTex->begin();
 
-	_pLight->visit();
+		_pLight->visit();
 
-	_pRenderTex->end();
+		_pRenderTex->end();
 
-	// save the light texture in PNG
-	std::stringstream filePath;
-	filePath << "levels/" << _levelNames[_iLevelCursor] << "/PREC_light_" << _iLightCursor <<".png";
-	_pRenderTex->newImage()->saveToFile(filePath.str().c_str(), false);
-	++_iLightCursor;
-
+		// save the light texture in PNG
+		std::stringstream filePath;
+		filePath << "levels/" << _levelNames[_iLevelCursor] << "/PREC_light_" << _iLightCursor <<".png";
+		_pRenderTex->newImage()->saveToFile(filePath.str().c_str(), false);
+		++_iLightCursor;
+	}
 	// finish current level
-	if(static_cast<unsigned int>(_iLightCursor) >= _lights.size()) {
+	if(_lights.empty() || static_cast<unsigned int>(_iLightCursor) >= _lights.size()) {
 		buildAndSaveLightmap();
 
 		++_iLevelCursor;
